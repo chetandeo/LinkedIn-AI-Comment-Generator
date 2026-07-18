@@ -1,0 +1,80 @@
+/* content.css — styles for the injected AI comment toolbar */
+
+.ai-comment-toolbar {
+  /* IMPORTANT: This element is now appended INSIDE the known-safe
+     commentBox-* flex-column container (editor + icon row), never as a
+     sibling escaping into LinkedIn's outer CSS Grid. Even so, we keep the
+     sizing defensive and avoid any !important/forced width so this can
+     never influence sibling sizing regardless of where it ends up:
+     - flex-grow/shrink: 0 → never takes/gives space from siblings
+     - width: auto (default) → sizes to its own content only
+     - max-width: 100% → pure overflow guard, never expands page layout */
+  display: flex;
+  flex-grow: 0;
+  flex-shrink: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 12px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: #f3f6f8;
+  border: 1px solid #dce6f1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.ai-comment-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #56687a;
+  margin-right: 2px;
+}
+
+.ai-comment-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.ai-comment-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.ai-comment-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-btn-professional { background: #0a66c2; }
+.ai-btn-funny        { background: #f0a202; }
+.ai-btn-absolute      { background: #d7263d; }
+.ai-btn-angry         { background: #6a0dad; }
+.ai-btn-techie        { background: #1e824c; }
+
+.ai-comment-status {
+  font-size: 12px;
+  margin-left: 8px;
+  color: #56687a;
+}
+
+.ai-comment-status--loading {
+  color: #0a66c2;
+}
+
+.ai-comment-status--error {
+  color: #d7263d;
+  font-weight: 600;
+}
+
+.ai-comment-status--success {
+  color: #1e824c;
+  font-weight: 600;
+}

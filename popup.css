@@ -1,0 +1,85 @@
+/* popup.css */
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #f9fafb;
+  color: #1d2226;
+}
+
+.popup-container {
+  width: 300px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 15px;
+  margin: 0 0 14px;
+  color: #0a66c2;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 10px 0 4px;
+  color: #56687a;
+}
+
+input[type="password"],
+select {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #dce6f1;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #fff;
+  color: #1d2226;
+}
+
+button#saveBtn {
+  margin-top: 14px;
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: #0a66c2;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+button#saveBtn:hover {
+  opacity: 0.9;
+}
+
+.status-msg {
+  min-height: 16px;
+  font-size: 12px;
+  text-align: center;
+  margin: 8px 0 0;
+}
+
+.status-msg--success {
+  color: #1e824c;
+  font-weight: 600;
+}
+
+.status-msg--error {
+  color: #d7263d;
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 11px;
+  color: #56687a;
+  margin-top: 14px;
+  line-height: 1.4;
+}
+
+.hint a {
+  color: #0a66c2;
+}

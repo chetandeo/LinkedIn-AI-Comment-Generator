@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LinkedIn AI Comment Generator — Settings</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="popup-container">
+    <h1>LinkedIn AI Comment Generator</h1>
+
+    <label for="apiKey">OpenRouter API key</label>
+    <input type="password" id="apiKey" placeholder="sk-or-..." autocomplete="off" />
+
+    <label for="model">Model</label>
+    <select id="model">
+      <option value="openrouter/free">openrouter/free (universal, free)</option>
+      <option value="openai/gpt-4o-mini">openai/gpt-4o-mini</option>
+      <option value="anthropic/claude-3.5-haiku">anthropic/claude-3.5-haiku</option>
+      <option value="meta-llama/llama-3.1-8b-instruct">meta-llama/llama-3.1-8b-instruct</option>
+      <option value="google/gemini-flash-1.5">google/gemini-flash-1.5</option>
+    </select>
+
+    <button id="saveBtn">Save</button>
+    <p id="statusMsg" class="status-msg"></p>
+
+    <p class="hint">
+      Get a key at
+      <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a>.
+      Your key is stored locally and only sent to OpenRouter.
+    </p>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
