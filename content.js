@@ -152,36 +152,83 @@
     });
   }
 
+  // When an extension is reloaded/updated from chrome://extensions (very
+  // common during active development) any content script instances still
+  // running in already-open tabs lose their connection to the extension.
+  // `chrome.runtime.id` becomes undefined and any further
+  // chrome.runtime.* calls throw "Extension context invalidated" —
+  // synchronously, not just via a callback error. This check lets us fail
+  // gracefully with a helpful on-page message instead of an uncaught
+  // console error, and tells the user to simply refresh the tab.
+  function isExtensionContextValid() {
+    try {
+      return Boolean(chrome.runtime && chrome.runtime.id);
+    } catch (_) {
+      return false;
+    }
+  }
+
   function handleToneClick(editor, toolbar, category) {
+    if (!isExtensionContextValid()) {
+      setStatus(
+        toolbar,
+        "Extension was reloaded — please refresh this page and try again.",
+        "error"
+      );
+      log("Extension context invalidated (likely reloaded from chrome://extensions). Refresh the page to reconnect.");
+      return;
+    }
+
     const postText = extractPostText(editor);
 
     setButtonsDisabled(toolbar, true);
     setStatus(toolbar, "Generating…", "loading");
 
-    chrome.runtime.sendMessage(
-      { type: "GENERATE_COMMENT", postText, category },
-      (response) => {
-        setButtonsDisabled(toolbar, false);
+    try {
+      chrome.runtime.sendMessage(
+        { type: "GENERATE_COMMENT", postText, category },
+        (response) => {
+          setButtonsDisabled(toolbar, false);
 
-        if (chrome.runtime.lastError) {
-          setStatus(toolbar, chrome.runtime.lastError.message, "error");
-          return;
+          // chrome.runtime.lastError itself can throw if the context was
+          // invalidated between the call and the callback firing.
+          let lastError;
+          try {
+            lastError = chrome.runtime.lastError;
+          } catch (_) {
+            lastError = { message: "Extension was reloaded — please refresh this page and try again." };
+          }
+
+          if (lastError) {
+            setStatus(toolbar, lastError.message, "error");
+            return;
+          }
+
+          if (!response) {
+            setStatus(toolbar, "No response from background script.", "error");
+            return;
+          }
+
+          if (!response.ok) {
+            setStatus(toolbar, response.error || "Something went wrong.", "error");
+            return;
+          }
+
+          insertTextIntoEditor(editor, response.text);
+          setStatus(toolbar, "Comment inserted ✓", "success");
         }
-
-        if (!response) {
-          setStatus(toolbar, "No response from background script.", "error");
-          return;
-        }
-
-        if (!response.ok) {
-          setStatus(toolbar, response.error || "Something went wrong.", "error");
-          return;
-        }
-
-        insertTextIntoEditor(editor, response.text);
-        setStatus(toolbar, "Comment inserted ✓", "success");
-      }
-    );
+      );
+    } catch (err) {
+      // Synchronous throw path — happens when the context was invalidated
+      // right at the moment sendMessage is called.
+      setButtonsDisabled(toolbar, false);
+      setStatus(
+        toolbar,
+        "Extension was reloaded — please refresh this page and try again.",
+        "error"
+      );
+      log("chrome.runtime.sendMessage threw synchronously:", err);
+    }
   }
 
   function buildToolbar(editor) {
@@ -262,7 +309,18 @@
   }
 
   let heartbeatCount = 0;
+  let intervalId = null;
+
   function heartbeat() {
+    // Stop polling once the extension context is gone (reloaded/updated)
+    // so we don't keep running indefinitely in a stale tab.
+    if (!isExtensionContextValid()) {
+      log("Extension context invalidated — stopping background polling. Refresh the page to reconnect.");
+      if (intervalId) clearInterval(intervalId);
+      observer.disconnect();
+      return;
+    }
+
     heartbeatCount += 1;
     const totalQlEditors = document.querySelectorAll(GENERIC_EDITOR_SELECTOR).length;
     const totalContentEditables = document.querySelectorAll('[contenteditable="true"]').length;
@@ -288,5 +346,5 @@
   // Belt-and-suspenders: some editor mounts don't trigger observable
   // ancestor mutations (e.g. lazy Quill init on focus). Poll as a backstop
   // and print a heartbeat so we can see raw DOM state in the console.
-  setInterval(heartbeat, 3000);
+  intervalId = setInterval(heartbeat, 3000);
 })();
